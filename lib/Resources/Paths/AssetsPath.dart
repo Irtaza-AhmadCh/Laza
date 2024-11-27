@@ -26,6 +26,7 @@ class Images {
   static const String up = '$svgBasePath/Arrow-Up4.svg';
   static const String delete = '$svgBasePath/Delete.svg';
   static const String vise = '$svgBasePath/vise.svg';
+  static const String location = '$svgBasePath/Location.svg';
 }
 
 class PngImages {
@@ -51,6 +52,10 @@ class PngImages {
   static const String confirmOrderMoble = '$pngBasePath/confirmOrderMoble.png';
   static const String confirmOrderBack = '$pngBasePath/confirmOrderBack.png';
   static const String emptycart = '$pngBasePath/emptycart.gif';
+  static const String map = '$pngBasePath/map.png';
+  static const String bank = '$pngBasePath/bank.png';
+  static const String paypal = '$pngBasePath/paypal.png';
+  static const String master = '$pngBasePath/master.png';
 
 
 

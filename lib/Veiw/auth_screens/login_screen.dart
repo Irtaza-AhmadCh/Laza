@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:laza/Firebase/Auth/login_auth.dart';
+import 'package:laza/Providers/bottom_buttom_provider.dart';
 import 'package:laza/Providers/textfeild_tick_provider.dart';
 import 'package:laza/Resources/Colors/Colors.dart';
 import 'package:laza/Resources/Navigators/navigators.dart';
@@ -9,10 +10,12 @@ import 'package:laza/Resources/Widgets/bottom_button.dart';
 import 'package:laza/Resources/Widgets/top_back_and-text.dart';
 import 'package:laza/Veiw/auth_screens/forget_password_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:switcher_button/switcher_button.dart';
 
 import '../../Resources/MediaQuery/media_query.dart';
 import '../../Resources/NavigationBar/nav_bar.dart';
+import '../../Resources/NotificationMassage/ToastMassage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,6 +30,14 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController passwordController = TextEditingController();
   bool val = true;
   bool valid = true;
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    passwordController.dispose();
+    emailController.dispose();
+    nameController.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     final w = getScreenSize(context).width * (1 / 375);
@@ -65,8 +76,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         builder: (BuildContext context, value, Widget? child) {
                           return    MyTextField(
                             title: 'Email Address',
-                            fieldType: 'email',
-                            SuffixIcon: value.emailchanger(),
+                            fieldType: 'emaillogin',
+                            SuffixIcon: value.emailloginchanger(),
                             controller: emailController,
                             hintText: 'Enter Email',);
 
@@ -80,8 +91,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         builder: (BuildContext context, value, Widget? child) {
                           return    MyTextField(
                             title: 'Password',
-                            fieldType: 'password',
-                            SuffixIcon: provider.passwordchanger(),
+                            fieldType: 'passwordlogin',
+                            SuffixIcon: provider.passwordLoginchanger(),
                             controller: passwordController,
                             hintText: 'Enter Password',);
                         },
@@ -138,7 +149,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 offColor: MyColor.white,
                                 onColor: MyColor.green,
                                 value: true,
-                                onChange: (value) {},
+                                onChange: (value) {
+                                  val = value;
+                                },
                               ))
                         ],
                       ),
@@ -181,11 +194,24 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-        bottomNavigationBar: BottomButtons(lable: 'Login', ontap: () {
-          // NavigatorTo(context, NavBar());
-          loginAuth(emailController.text.toString(), passwordController.text.toString(), context);
+        bottomNavigationBar: Consumer<BottomButtomProvider>(
 
-        }) ,
+          builder: (context, value, child) {
+            return BottomButtons(lable: 'Login', ontap: () async{
+              // NavigatorTo(context, NavBar());
+              if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty ){
+            value.startloading();
+                loginAuth(emailController.text.toString(), passwordController.text.toString(), context ,val);
+                ;
+
+              SharedPreferences sp = await  SharedPreferences.getInstance();
+              sp.setBool('rememberMe', val);
+              print(sp.getBool('rememberMe'));}else{
+                Toastmassage.ErrorToast('Fill complete data');
+              }
+            });
+          }
+        ) ,
       ),
     );
   }

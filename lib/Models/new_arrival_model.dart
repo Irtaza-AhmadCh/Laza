@@ -1,32 +1,15 @@
 import 'package:laza/Resources/Paths/AssetsPath.dart';
 
 class NewArrivalModel{
-  String ProductimagePath;
+  String Productdescription;
   String Productname;
   String Producttype;
-  String Productprice;
-  NewArrivalModel({required this.ProductimagePath, required this.Productname, required this.Productprice, required this.Producttype});
+  String ProductId;
+  String ProductBrand;
+  int Productprice;
+  List Size;
+  List Reviews;
+  List ProductimagePath;
+  NewArrivalModel({required this.ProductimagePath, required this.ProductId, required this.ProductBrand, required this.Size,required this.Reviews, required this.Productdescription,
+  required this.Productname, required this.Productprice, required this.Producttype});
 }
-
-List<NewArrivalModel> NewArrivalList = [
-  NewArrivalModel(ProductimagePath: PngImages.shirt,
-      Productname: 'Nike Sportswear Club',
-      Productprice: '99',
-      Producttype: 'Fleece'),
-  NewArrivalModel(ProductimagePath: PngImages.shirt,
-      Productname: 'Nike Sportswear Club',
-      Productprice: '99',
-      Producttype: 'Fleece'),
-  NewArrivalModel(ProductimagePath: PngImages.shirt,
-      Productname: 'Nike Sportswear Club',
-      Productprice: '99',
-      Producttype: 'Fleece'),
-  NewArrivalModel(ProductimagePath: PngImages.shirt,
-      Productname: 'Nike Sportswear Club',
-      Productprice: '99',
-      Producttype: 'Fleece'),
-  NewArrivalModel(ProductimagePath: PngImages.shirt,
-      Productname: 'Nike Sportswear Club',
-      Productprice: '99',
-      Producttype: 'Fleece'),
-  ];

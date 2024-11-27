@@ -3,6 +3,8 @@ import 'package:laza/Firebase/Auth/forget_password_auth.dart';
 import 'package:laza/Resources/Navigators/navigators.dart';
 import 'package:laza/Resources/Paths/imports.dart';
 import 'package:laza/Veiw/auth_screens/login_screen.dart';
+import 'package:provider/provider.dart';
+import '../../Providers/bottom_buttom_provider.dart';
 import '../../Resources/MediaQuery/media_query.dart';
 import '../../Resources/Paths/AssetsPath.dart';
 import 'confirm_password_screen.dart';
@@ -60,6 +62,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
           ),
         ),
         bottomNavigationBar:  BottomButtons(lable: 'Confirm Mail', ontap: (){
+          Provider.of<BottomButtomProvider>(context, listen:  false).startloading();
          forgetPasswordAuth(emailController.text.toString(),context);
         }),
       ),

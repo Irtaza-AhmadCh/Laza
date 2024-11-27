@@ -3,20 +3,40 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:laza/Models/Size-seleter_model.dart';
 import 'package:laza/Models/product_image_modal.dart';
 import 'package:laza/Models/review_model.dart';
+import 'package:laza/Providers/bottom_buttom_provider.dart';
+import 'package:laza/Providers/cart_add_product.dart';
 import 'package:laza/Providers/product_detail_provider.dart';
 import 'package:laza/Providers/size_selector_provider.dart';
 import 'package:laza/Resources/MediaQuery/media_query.dart';
+import 'package:laza/Resources/NavigationBar/nav_bar.dart';
 import 'package:laza/Resources/Navigators/navigators.dart';
 import 'package:laza/Resources/Paths/AssetsPath.dart';
 import 'package:laza/Resources/Widgets/review_tile.dart';
 import 'package:laza/Veiw/reviews_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../Firebase/DataBase/user_cart.dart';
 import '../Resources/Paths/imports.dart';
 import 'cart_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen({super.key});
+  List ProductimagePath;
+  List Size;
+  List ProductReviews;
+  String Productname;
+  String Productdescription;
+  String Producttype;
+  String ProductId;
+  int Productprice;
+   ProductDetailScreen({super.key,
+    required this.Productprice,
+    required this.Producttype,
+    required this.Productname,
+    required this.ProductimagePath,
+    required this.Size,
+    required this.Productdescription,
+    required this.ProductReviews,
+     required this.ProductId,});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -45,8 +65,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 width: getScreenSize(context).width,
                 decoration: BoxDecoration(
                     image: DecorationImage(
-                        image: AssetImage(
-                            ProductImageList[provider.selectedIndex].imagePath),
+                        image: NetworkImage(
+
+                        widget.ProductimagePath[(value.selectedIndex < widget.ProductimagePath.length)? value.selectedIndex :0].toString()                            ),
                         fit: BoxFit.cover)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -73,7 +94,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       padding: const EdgeInsets.only(right: 20,top: 20),
                       child: InkWell(
                           onTap: (){
-                            NavigatorTo(context, CartScreen());
+                            navigatedFrom ='';
+                            NavigatorTo(context, const CartScreen());
                           },
                           child: SvgPicture.asset(Images.cart)),
                     ),
@@ -85,19 +107,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
               child: Column(
                 children: [
-                  const Row(
+                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Men's Printed Pullover Hoodie",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'Inter',
-                          color: MyColor.textLight,
+                      SizedBox(
+                        width: 260*w,
+                        child: Text(
+                          widget.Productname,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: 'Inter',
+                            color: MyColor.textLight,
+                          ),
                         ),
                       ),
-                      Text(
+                      const Text(
                         "Price     ",
                         style: TextStyle(
                           fontSize: 13,
@@ -108,12 +135,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ],
                   ),
-                  const Row(
+                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Nike Club Fleece",
-                        style: TextStyle(
+                        widget.Producttype,
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Inter',
@@ -121,8 +148,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                       ),
                       Text(
-                        "\$120",
-                        style: TextStyle(
+                        "\$${widget.Productprice.toString()},",
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Inter',
@@ -135,9 +162,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   Container(
                     height: 77,
                     child: ListView.builder(
-                        itemCount: ProductImageList.length,
+                        itemCount:
+                            widget.ProductimagePath.length,
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (context, index) {
+                          print( widget.ProductimagePath.length);
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: Consumer<ProductDetailProvider>(
@@ -152,9 +181,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                       height: 77,
                                       decoration: BoxDecoration(
                                      color: MyColor.grey,
+                                        borderRadius: BorderRadius.circular(20),
                                         image: DecorationImage(
-                                            image: AssetImage(
-                                                ProductImageList[index].imagePath),
+                                            image: NetworkImage(
+                                                widget.ProductimagePath[index]),
                                             fit: BoxFit.cover),
                                       )),
                                 );
@@ -193,7 +223,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   SizedBox(
                     height: 60,
                     child: ListView.builder(
-                        itemCount: SizeSelectoreList.length,
+                        itemCount:  widget.Size.length,
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (context, index) {
                           return Padding(
@@ -215,7 +245,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          SizeSelectoreList[index].size,
+                                          widget.Size[index],
                                           style: TextStyle(
                                             color: (value.selectedIndex == index)
                                                 ? MyColor.white
@@ -256,10 +286,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       SizedBox(
                         width: 335 * w,
                         height: 63,
-                        child: const Text(
-                          "The Nike Throwback Pullover Hoodie is made from premium French terry fabric that blends a performance feel with     ",
+                        child:  Text(
+                          widget.Productdescription,
                           maxLines: 2,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
                             overflow: TextOverflow.ellipsis,
                             fontWeight: FontWeight.w400,
@@ -287,7 +317,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       InkWell(
                         onTap: (){
-                          NavigatorTo(context, const ReviewsScreen());
+                          NavigatorTo(context,  ReviewsScreen(
+                            productId: widget.ProductId,
+                          ));
                         },
                         child: const Text(
                           "View all",
@@ -302,11 +334,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 15,),
-                 ReviewTile(ratings: reveiwList[0].ratings, review: reveiwList[0].reveiw, userName: reveiwList[0].name),
-                  const Row(
+                 ReviewTile(
+                     ratings: widget.ProductReviews[0]['rating'],
+                     date: widget.ProductReviews[0]['time'],
+                     review: widget.ProductReviews[0]['review'],
+                     userName: widget.ProductReviews[0]['name']),
+                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
+                     const Column(
                         children: [
                           Text(
                             "Total Price ",
@@ -329,7 +365,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ],
                       ),
                       Text(
-                        "\$205",
+                        "\$${widget.Productprice+ 10}",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
@@ -346,7 +382,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ],
                 ),
           ),
-      bottomNavigationBar:  BottomButtons(lable: 'Add to Cart', ontap: () {}),
+      bottomNavigationBar:  Consumer<CartAddProductProvider>(
+        builder: (context, value, child){
+          return  BottomButtons(lable: 'Add to Cart', ontap: () {
+
+            value.addToCart(
+                context,
+                productId: widget.ProductId, qty: 1,
+                price:widget.Productprice, name: widget.Productname,
+                type: widget.Producttype, image: widget.ProductimagePath[0]);
+            Provider.of<BottomButtomProvider>(context, listen: false).startloading();
+// Cart.addCart(productId: widget.ProductId.toString());
+          });
+        },
+      ),
       ),
 
     );

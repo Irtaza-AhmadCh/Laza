@@ -1,8 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:laza/Firebase/DataBase/User_data/get_user_data.dart';
 import 'package:laza/Models/choose_brand_model.dart';
+import 'package:laza/Providers/home-provider.dart';
+import 'package:laza/Providers/search_provider.dart';
+import 'package:laza/Providers/wishList_provider.dart';
 import 'package:laza/Resources/Colors/Colors.dart';
 import 'package:laza/Resources/NavigationBar/nav_bar.dart';
 import 'package:laza/Resources/Navigators/navigators.dart';
@@ -11,18 +17,21 @@ import 'package:laza/Resources/Widgets/choose_brand.dart';
 import 'package:laza/Resources/Widgets/drawer.dart';
 import 'package:laza/Resources/Widgets/drawerTile.dart';
 import 'package:laza/Resources/Widgets/new_arrival_tile.dart';
+import 'package:laza/Veiw/all_brands.dart';
 import 'package:laza/Veiw/shoping_screen/all_arrival_screen.dart';
 import 'package:laza/Veiw/cart_screen.dart';
 import 'package:laza/Veiw/favirate_list_screen.dart';
 import 'package:laza/Veiw/auth_screens/login_screen.dart';
 import 'package:laza/Veiw/payment_screen.dart';
 import 'package:laza/Veiw/product_detail_screen.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:switcher_button/switcher_button.dart';
 import '../Firebase/Auth/logout_auth.dart';
 import '../Models/new_arrival_model.dart';
+import '../Providers/reviw_provider.dart';
 import '../Providers/theme_provider.dart';
 import '../Resources/MediaQuery/media_query.dart';
 import '../Resources/Paths/AssetsPath.dart';
@@ -37,18 +46,43 @@ class HomeScreen extends StatefulWidget {
 
 }
 
+ late final userData;
+
 final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 class _HomeScreenState extends State<HomeScreen> {
   TextEditingController seacrhController = TextEditingController();
   SpeechToText _speechToText = SpeechToText();
+  final snapshotRef = FirebaseFirestore.instance.collection('Products').snapshots();
   bool _speechEnabled = false;
   String _lastWords = '';
+  List allresult = [];
+  List searchresult = [];
+  late Future futureResult ;
 
+ getBrandList()async {
+if( seacrhController.text.isNotEmpty){
+  var products = await FirebaseFirestore.instance.collection('Products')
+      .where('type'.toString().split(''),isLessThanOrEqualTo: seacrhController.text.toString().toLowerCase()).orderBy('type').get();
+  print(seacrhController.text.toString());
+}else{
+
+}
+
+
+}
 
   @override
   void initState() {
     super.initState();
     _initSpeech();
+    UserData();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    seacrhController.dispose();
   }
 
   void _initSpeech() async {
@@ -75,9 +109,26 @@ seacrhController.text =_lastWords;
     setState(() {});
   }
 
+  final _auth = FirebaseAuth.instance;
+
+  Future<DocumentSnapshot<Map<String, dynamic>>> UserData() async {
+    final String userId = _auth.currentUser!.uid.toString();
+    final userRef = FirebaseFirestore.instance.collection('User').doc(userId);
+    final docSnapshot = await userRef.get();
+    return docSnapshot;
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
+
     final themeprovider = Provider.of<ThemeProvider>(context);
+    final searchprovider = Provider.of<SearchProvider>(context);
+    final homeProvider = Provider.of<HomeScreenProvvider>(context ,listen: false);
+    homeProvider.getProduct();
+    // final reviewProvider = Provider.of<ReviewProvider>(context);
+    // reviewProvider.getReviews();
     final w  =getScreenSize(context).width*(1/375);
     final h= getScreenSize(context).height*(1/812);
 
@@ -86,6 +137,8 @@ seacrhController.text =_lastWords;
       key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: MyColor.white,
+        foregroundColor: MyColor.white,
+        surfaceTintColor: Colors.white,
         toolbarHeight: 90,
         leading: Padding(
           padding: const EdgeInsets.only(left: 20),
@@ -117,8 +170,8 @@ seacrhController.text =_lastWords;
         backgroundColor: MyColor.white,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 45),
-          child: ListView(
-
+          child: Column(
+mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 children: [
@@ -137,44 +190,68 @@ seacrhController.text =_lastWords;
                     ],
                   ),
                   const SizedBox(height: 30,),
-                  Row(
-                    children: [
-                      Container(
-                        height:45 ,
-                        width: 45,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: MyColor.grey, ),
-                          color: MyColor.grey,
-                          shape: BoxShape.circle,
-                          image: const DecorationImage(image: AssetImage(PngImages.shirt)),
-                        ),
-                      ),
-                      const Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Irtaza', style: TextStyle(
+                  FutureBuilder<DocumentSnapshot<Map<String, dynamic>>> (
+                    future: UserData(),
+                    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot) {
+                      if(snapshot.hasError){
+                        return   const Center(
+                          child:    Text('No Data found', style: TextStyle(
                             color: MyColor.textBlack,
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w600 ,
                             fontSize: 17,
                           ),),
-                          Row(
+                        );
+                      }else
+                        if(snapshot.connectionState == ConnectionState.waiting){
+                        return Center(
+                            child:   LoadingAnimationWidget.stretchedDots(color: MyColor.purple, size: 20)
+                        );
+
+                      }else{
+                      return Row(
+                        children: [
+                          Container(
+                            height:45 ,
+                            width: 45,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: MyColor.grey, ),
+                              color: MyColor.grey,
+                              shape: BoxShape.circle,
+                              image:  DecorationImage(image: NetworkImage(snapshot.data!.data()!['profileImage'],),
+                                fit: BoxFit.fill
+                            ),
+                          ),),
+                          const SizedBox(width: 5,),
+                           Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-
-                              Text('Verified Profile', style: TextStyle(
-                                color: MyColor.textLight,
+                              Text( snapshot.data!.data()!['Name'],
+                                style: const TextStyle(
+                                color: MyColor.textBlack,
                                 fontFamily: 'Inter',
-                                fontWeight: FontWeight.w400 ,
-                                fontSize: 13,
+                                fontWeight: FontWeight.w600 ,
+                                fontSize: 17,
                               ),),
-                              Icon(Icons.verified, color: MyColor.green, size: 15,)
+                              const Row(
+                                children: [
 
+                                  Text('Verified Profile', style: TextStyle(
+                                    color: MyColor.textLight,
+                                    fontFamily: 'Inter',
+                                    fontWeight: FontWeight.w400 ,
+                                    fontSize: 13,
+                                  ),),
+                                  Icon(Icons.verified, color: MyColor.green, size: 15,)
+
+                                ],
+                              )
                             ],
                           )
                         ],
-                      )
-                    ],
+                      );}
+                    },
                   ),
                   const SizedBox(height: 30,),
                   DrawerTile(lable: 'Dark Mode', icon: PngImages.sun, modechanger:
@@ -199,12 +276,7 @@ seacrhController.text =_lastWords;
                           ));
                     },),),
                   // const DrawerTile(lable: 'Account Information', icon: PngImages.infoCircle, ),
-                  DrawerTile(
-                      ontap: (){
-                        navigatedFrom = '';
-                        NavigatorTo(context, const CartScreen());
-                      },
-                      lable: 'Password', icon: PngImages.lock),
+
                   DrawerTile(
                       ontap: (){
                         NavigatorTo(context, const CartScreen());
@@ -220,10 +292,10 @@ seacrhController.text =_lastWords;
                         NavigatorTo(context, const FavirateListScreen());
                       },
                       lable: 'Wishlist', icon: PngImages.heartpng),
-                  const DrawerTile(lable: 'Settings', icon: PngImages.setting),
+
                 ],
               ),
-              SizedBox(height: 144*h,),
+
               InkWell(
                   onTap: (){
                     logoutAuth(context);
@@ -282,6 +354,9 @@ seacrhController.text =_lastWords;
                           Expanded(
                             child: TextFormField(
                       controller:seacrhController,
+                              onChanged: (val){
+                        homeProvider.search(val.toString().toLowerCase());
+                              },
                               decoration: InputDecoration(
                                   hintText: 'Search...',
                                   hintStyle:  const TextStyle(
@@ -317,7 +392,13 @@ seacrhController.text =_lastWords;
                           ),
                           InkWell(
                             onTap: (){
-                              (_speechToText.isNotListening) ?_startListening() :_stopListening();
+                              (_speechToText.isNotListening) ?_startListening()
+                                  :
+                              {
+                                _stopListening(),
+                                homeProvider.search(_lastWords.toString().toLowerCase())
+
+                              };
                               print('tap');
                               setState(() {
 
@@ -342,21 +423,26 @@ seacrhController.text =_lastWords;
                 const SizedBox(
                   height: 20,
                 ),
-                const Row(
+                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Choose Brand', style: TextStyle(
+                    const Text('Choose Brand', style: TextStyle(
                         color:MyColor.textBlack ,
                         fontWeight: FontWeight.w600,
                         fontSize: 17,
                         fontFamily: 'Inter'
                     ),),
-                    Text('View all', style: TextStyle(
-                        color:MyColor.textLight ,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 13,
-                        fontFamily: 'Inter'
-                    ),)
+                    InkWell(
+                      onTap: (){
+                        NavigatorTo(context, AllBrandScreen());
+                      },
+                      child: const Text('View all', style: TextStyle(
+                          color:MyColor.textLight ,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 13,
+                          fontFamily: 'Inter'
+                      ),),
+                    )
                   ],
                 ),
                 const SizedBox(
@@ -364,12 +450,30 @@ seacrhController.text =_lastWords;
                 ),
                 SizedBox(
                   height: 50,
-                  child: ListView.builder(
+                  child:StreamBuilder<QuerySnapshot>(
+    stream: FirebaseFirestore.instance.collection('Brands').snapshots(),
+    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    if(snapshot.hasError){
+    return const Center(
+    child: Text('Some Error occur', style: TextStyle(
+    color: MyColor.red,
+    fontSize: 28,
+    fontWeight:FontWeight.w600 ,
+    fontFamily: 'Inter',
+    ),),
+    );
+    }else if( snapshot.connectionState ==ConnectionState.waiting){
+    return  Center(
+    child: LoadingAnimationWidget.stretchedDots(color: MyColor.purple,
+    size: 50)
+
+    );
+    }else{return  ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: brandList.length,
+                      itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, index){
-                        return ChooseBrandTile(brandName: brandList[index].brandName, brandLogo: brandList[index].imagePath);
-                      }),
+                        return  ChooseBrandTile(brandName: snapshot.data!.docs[index]['BrandName'], brandLogo: snapshot.data!.docs[index]['BrandLogo']);
+                      });}}),
                 ),
                 const SizedBox(
                   height: 15,
@@ -398,29 +502,69 @@ seacrhController.text =_lastWords;
                   ],
                 ),
                 SizedBox(
-                    height: getScreenSize(context).height -60,
+                    height: getScreenSize(context).height -300,
                     width: getScreenSize(context).width,
-                    child: GridView.builder(
-                        itemCount: NewArrivalList.length,
-                        shrinkWrap:true,
-                        gridDelegate: const  SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 6,
-                            crossAxisSpacing: 3,
-                            mainAxisExtent: 270,
-                            childAspectRatio: 1
+                    child:
 
-                        ),
-                        itemBuilder: (context,index){
-                          return InkWell(
-                            onTap: (){
-                              NavigatorTo(context, const ProductDetailScreen());                            },
-                            child: NewArrivalTile(image: NewArrivalList[index].ProductimagePath,
-                                name: NewArrivalList[index].Productname,
-                                type: NewArrivalList[index].Producttype,
-                                price: NewArrivalList[index].Productprice),
-                          );
-                        })
+                            Consumer<HomeScreenProvvider>(
+                            builder: (context, homevalue, chlid) {
+                           List<NewArrivalModel> data = homevalue.productdata;
+                              return (data.isNotEmpty)? GridView.builder(
+                                  itemCount: data.length,
+                                  gridDelegate: const  SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 6,
+                                      crossAxisSpacing: 3,
+                                      mainAxisExtent: 290,
+                                      childAspectRatio: 1
+
+                                  ),
+                                  itemBuilder: (context,index){
+
+                                    return  InkWell(
+                                        onTap: () {
+                                          NavigatorTo(
+                                              context,
+                                              ProductDetailScreen(
+                                                  Productprice: data[index].Productprice,
+                                                  Producttype: data[index].Producttype,
+                                                  Productname:data[index].Productname,
+                                                  ProductimagePath:data[index].ProductimagePath,
+                                                  Size: data[index].Size,
+                                                  Productdescription:data[index].Productdescription,
+                                                  ProductReviews: data[index].Reviews,
+                                                  ProductId: data[index].ProductId,));
+                                        },
+                                        child: Consumer<WishlistProvider>(
+                                          builder: (BuildContext context,
+                                              WishlistProvider value,
+                                              Widget? child) {
+                                            print(data[index].Productname);
+                                            return NewArrivalTile(
+                                              image: data[index].ProductimagePath,
+                                              description:  data[index].Productdescription,
+                                              type:  data[index].Producttype,
+                                              price:  data[index].Productprice,
+                                              productId:  data[index].ProductId,
+                                              position: index,
+                                              name: data[index].Productname,
+                                              Size: data[index].Size,
+                                              reviews: data[index].Reviews,
+                                              brand: data[index].ProductBrand,
+                                            );
+                                          },
+                                        ),
+                                      );
+                                  }): Center(
+                                child: Text('No Product Founded 🤷‍♂️' ,style: TextStyle(
+                                  fontSize: 25,
+                                  fontFamily: 'Inter',
+                                  color: MyColor.red
+                                ),),
+                              );
+                            }
+                          )
+
                 )
 
 

@@ -3,14 +3,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:laza/Firebase/Auth/signUp_auth.dart';
+import 'package:laza/Providers/bottom_buttom_provider.dart';
 import 'package:laza/Providers/textfeild_tick_provider.dart';
 import 'package:laza/Resources/Colors/Colors.dart';
 import 'package:laza/Resources/Navigators/navigators.dart';
+import 'package:laza/Resources/Paths/AssetsPath.dart';
 import 'package:laza/Resources/Paths/imports.dart';
 import 'package:laza/Resources/Widgets/TextFields.dart';
 import 'package:laza/Resources/Widgets/bottom_button.dart';
 import 'package:laza/Resources/Widgets/top_back_and-text.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:switcher_button/switcher_button.dart';
 
 import '../../Resources/MediaQuery/media_query.dart';
@@ -33,6 +36,7 @@ class _SignInScreenState extends State<SignInScreen> {
   File? _image ;
   final picker = ImagePicker();
 
+
   Future<void> pickImage() async{
 
   final  pickedImage =  await picker.pickImage(source: ImageSource.gallery);
@@ -53,9 +57,18 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    passwordController.dispose();
+    emailController.dispose();
+    nameController.dispose();
+  }
+  @override
   Widget build(BuildContext context) {
     final w  =getScreenSize(context).width*(1/375);
     final h= getScreenSize(context).height*(1/812);
+    final buttonProvider = Provider.of<BottomButtomProvider>(context, listen:  false);
 print('Build');
     return  SafeArea(
       child: Scaffold(
@@ -78,6 +91,7 @@ print('Build');
                       alignment: Alignment(.9, 1),
                       children:[
                         Container(
+                          clipBehavior: Clip.antiAlias,
                           height: 100,
                           width: 100,
                           decoration:  BoxDecoration(
@@ -87,7 +101,7 @@ print('Build');
                           ),
                           child:Icon(Icons.person, color: MyColor.textLight,size: 80,)
                           // (_image ==null)?Icon(Icons.person, color: MyColor.textLight,size: 80,):
-                          // Image.file(_image!),
+                          // Image.file(_image!, fit:BoxFit.cover,),
 
                         ),
                         Container(
@@ -162,12 +176,15 @@ fieldType: 'password',
                             offColor: MyColor.white,
                             onColor: MyColor.green,
                             value: true,
-                            onChange: (value) {
+                            onChange: (value){
+                              val = value;
+
                             },
-                          )
-                        )
+                          ),
+                        ),
+
                       ],
-                    )
+                    ),   SizedBox(height: 15,),
                   ],
                 ),
               ),
@@ -176,9 +193,17 @@ fieldType: 'password',
           ),
         ),
 
-        bottomNavigationBar:  BottomButtons(lable: 'Sign Up', ontap: (){
+        bottomNavigationBar:  BottomButtons(lable: 'Sign Up', ontap: ()async {
           // NavigatorTo(context, LoginScreen());
-          signUp_auth(emailController.text.toString(), passwordController.text.toString(), context, nameController.text.toString(), _image);
+if (_image != null && emailController.text.isNotEmpty&& passwordController.text.isNotEmpty && nameController.text.isNotEmpty ){
+  signUp_auth(emailController.text.toString(), passwordController.text.toString(), context, nameController.text.toString(), _image, val);
+  SharedPreferences sp = await  SharedPreferences.getInstance();
+  buttonProvider.startloading();
+  sp.setBool('rememberMe', val);
+  print(sp.getBool('rememberMe'));
+}else{
+  Toastmassage.ErrorToast('Fill complete data');
+}
 
 
         }),

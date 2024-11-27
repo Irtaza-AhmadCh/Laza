@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:laza/Firebase/DataBase/review_adding/review.dart';
 import 'package:laza/Providers/star_slider_provider.dart';
 import 'package:laza/Resources/Widgets/reuseable_textfield.dart';
 import 'package:laza/Veiw/reviews_screen.dart';
@@ -11,7 +13,8 @@ import '../../Resources/Paths/imports.dart';
 import '../../Resources/Widgets/reuseable_appbar.dart';
 
 class AddReviewScreen extends StatefulWidget {
-  const AddReviewScreen({super.key});
+ String? ProjectId;
+   AddReviewScreen({super.key, this.ProjectId});
 
   @override
   State<AddReviewScreen> createState() => _AddReviewScreenState();
@@ -20,12 +23,13 @@ class AddReviewScreen extends StatefulWidget {
 class _AddReviewScreenState extends State<AddReviewScreen> {
 TextEditingController nameController = TextEditingController();
 TextEditingController reveiwController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final w = getScreenSize(context).width * (1 / 375);
     final h = getScreenSize(context).height * (1 / 812);
     final provider = Provider.of<StarSliderProvider>(context, listen: false);
-    print(build);
+        print(build);
     return SafeArea(
         child:  Scaffold(
 appBar:appBar(context, title: 'Reviews'),
@@ -40,8 +44,8 @@ appBar:appBar(context, title: 'Reviews'),
                     children: [
 
                       ReuseableTextfield(title: 'Name', controller: nameController, hint: 'Type your name'),
-                      SizedBox(height: 20,),
-                      Row(
+                      const SizedBox(height: 20,),
+                      const Row(
                         children: [
                           Text('How was your experience ?' ,style: TextStyle(
                             fontFamily: 'Inter',
@@ -51,7 +55,7 @@ appBar:appBar(context, title: 'Reviews'),
                           ),)
                         ],
                       ),
-                      SizedBox(height: 10,),
+                      const SizedBox(height: 10,),
                       SizedBox(
                         height: 213,
                         child: ClipRRect(
@@ -59,7 +63,7 @@ appBar:appBar(context, title: 'Reviews'),
                           child: TextFormField(
                             maxLines: 10,
                             controller: reveiwController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                                 hintText: 'Describe your experience?',
                                 hintStyle: TextStyle(
                                   color: MyColor.textLight,
@@ -74,8 +78,8 @@ appBar:appBar(context, title: 'Reviews'),
                           ),
                         ),
                       ),
-                      SizedBox(height: 10,),
-                      Row(
+                      const SizedBox(height: 10,),
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text('Stars' ,style: TextStyle(
@@ -90,23 +94,23 @@ appBar:appBar(context, title: 'Reviews'),
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          Text( '0.0', style: TextStyle(
+                          const Text( '0.0', style: TextStyle(
                             color:MyColor.textBlack ,
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w600,
                             fontSize: 11,
                           ),),
                           SizedBox(
-                            width: 299*w,
+                            width: getScreenSize(context).width -77,
                             child: Consumer<StarSliderProvider>(
                               builder: (context, value , child){
                                 return  Slider(value: value.value,
                                     activeColor:  MyColor.purple,
                                     inactiveColor: MyColor.grey,
                                     max: 5,
-                                    label: value.value.toInt().toString(),
+                                    label: value.value.toString(),
                                     min: 0,
-                                    divisions: 5,
+                                    divisions: 10,
                                     onChanged: (val){
                                      value.changeValue(val);
                                     });
@@ -114,7 +118,7 @@ appBar:appBar(context, title: 'Reviews'),
 
                             ),
                           ),
-                          Text( '5.0', style: TextStyle(
+                          const Text( '5.0', style: TextStyle(
                             color:MyColor.textBlack ,
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w600,
@@ -131,12 +135,15 @@ appBar:appBar(context, title: 'Reviews'),
             ),
           ),
           bottomNavigationBar: BottomButtons(lable: 'Submit Review', ontap: (){
-            reveiwList.add(  ReviewModel(ratings: provider.value,
-                name: nameController.text.toString(),
-                reveiw:reveiwController.text.toString() ));
 
-            print(reveiwList.length);
-            NavigatorToReplace(context, ReviewsScreen());
+            addReview(widget.ProjectId,
+                nameController.text.toString(),
+                reveiwController.text.toString() ,
+                provider.value, context
+            );
+            setState(() {
+
+            });
           }),
     ));
   }

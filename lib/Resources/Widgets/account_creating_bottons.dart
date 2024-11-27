@@ -6,7 +6,8 @@ class AccountCreatingBottons extends StatelessWidget {
   final String lable;
   final Color color;
   final String icon;
-  const AccountCreatingBottons({super.key, required this.lable, required this.color, required this.icon});
+  final VoidCallback ontap;
+  const AccountCreatingBottons({super.key, required this.lable, required this.color, required this.icon,  required this.ontap});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,7 @@ class AccountCreatingBottons extends StatelessWidget {
         focusColor: Colors.transparent,
         hoverColor:Colors.transparent,
         highlightColor:Colors.transparent,
-        onTap: (){},
+        onTap: ontap,
         child: Container(
           height: 50,
           width: 335*w,

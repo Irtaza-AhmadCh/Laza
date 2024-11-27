@@ -1,4 +1,5 @@
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:laza/Resources/Colors/Colors.dart';
 
 import '../MediaQuery/media_query.dart';
 import '../Paths/AssetsPath.dart';
@@ -6,10 +7,12 @@ import '../Paths/imports.dart';
 
 class ReviewTile extends StatelessWidget {
  String review;
- double ratings;
+ var ratings;
  String userName;
+ String date;
 
-   ReviewTile({super.key, required this.ratings, required this.review,required this.userName,
+
+   ReviewTile({super.key, required this.ratings, required this.date, required this.review,required this.userName,
    });
 
   @override
@@ -19,7 +22,7 @@ class ReviewTile extends StatelessWidget {
     final w  =getScreenSize(context).width*(1/375);
     final h= getScreenSize(context).height*(1/812);
     return  SizedBox(
-      height: 118,
+      height: 120,
       child: Column(
         children: [
           Row(
@@ -43,19 +46,19 @@ class ReviewTile extends StatelessWidget {
                       children: [
                         Text(
                           userName,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Inter',
                             color: MyColor.textBlack,
                           ),
                         ),
-                        Row(
+                         Row(
                           children: [
                             Icon(Icons.access_time, color: MyColor.textLight,size: 11,),
                             SizedBox(width: 2,),
                             Text(
-                              '13 Sep, 2020',
+                              date,
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w400,
@@ -76,15 +79,15 @@ class ReviewTile extends StatelessWidget {
                     children: [
                       Text(
                         ratings.toString(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Inter',
                           color: MyColor.textBlack,
                         ),
                       ),
-                      SizedBox(width: 5,),
-                      Text(
+                      const SizedBox(width: 5,),
+                      const Text(
                         "Rating ",
                         style: TextStyle(
                           fontSize: 11,
@@ -100,16 +103,17 @@ class ReviewTile extends StatelessWidget {
                     height: 13,
                     width: 57,
                     child: RatingBar.builder(
-                      initialRating: ratings,
+                      initialRating: ratings.toDouble(),
                       itemSize: 10,
-                      minRating: 1,
+                      minRating: 1.0,
                       direction: Axis.horizontal,
                       itemCount: 5,
+                      allowHalfRating: true,
                       ignoreGestures: true,
-                      itemBuilder: (context, _) => Icon(
+                      itemBuilder: (context, _) => const Icon(
                         Icons.star,
                         size: 5,
-                        color: Colors.amber,
+                        color:MyColor.mustard,
                       ),
                       onRatingUpdate: (rating) {
                         print(rating);
@@ -127,7 +131,7 @@ class ReviewTile extends StatelessWidget {
             child:  Text(
               review,
               maxLines: 2,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
                 overflow: TextOverflow.ellipsis,
                 fontWeight: FontWeight.w400,

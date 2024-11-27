@@ -69,6 +69,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '780550453228',
     projectId: 'laza-86994',
     storageBucket: 'laza-86994.appspot.com',
+    androidClientId: '780550453228-ohs9v52ja64e3gki0na41vlva60k85ki.apps.googleusercontent.com',
+    iosClientId: '780550453228-q4lcb6aga6sb48gdevgiovhvrn6i939o.apps.googleusercontent.com',
     iosBundleId: 'com.example.laza',
   );
+
 }

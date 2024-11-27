@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 
 import '../Colors/Colors.dart';
 import '../Paths/imports.dart';
@@ -28,6 +29,9 @@ class ReuseableTextfield extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           child: TextFormField(
             controller:controller,
+           // inputFormatters: [
+           //   TextInputFormatter.withFunction(formatFunction)
+           // ],
            decoration:  InputDecoration(
               hintText: hint,
               border: InputBorder.none,

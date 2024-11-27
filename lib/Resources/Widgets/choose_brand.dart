@@ -24,7 +24,7 @@ class ChooseBrandTile extends StatelessWidget {
         highlightColor:Colors.transparent,
         splashColor:Colors.transparent,
         onTap: (){
-          NavigatorTo(context, ChooseBrandScreen(brandLogo: brandLogo));
+          NavigatorTo(context, ChooseBrandScreen(brandLogo: brandLogo, brandname: brandName));
         },
         child: Container(
           height: 50,
@@ -47,8 +47,9 @@ class ChooseBrandTile extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: MyColor.white,
                       borderRadius: BorderRadius.circular(10),
+                      image: DecorationImage(image: NetworkImage(brandLogo))
                     ),
-                    child: SvgPicture.asset(brandLogo),
+
                   ),
                   const SizedBox(width: 5,),
                    Text(brandName, style: TextStyle(

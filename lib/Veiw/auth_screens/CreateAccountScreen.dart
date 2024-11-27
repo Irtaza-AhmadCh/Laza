@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:laza/Firebase/Auth/google_auth.dart';
 import 'package:laza/Resources/Navigators/navigators.dart';
 import 'package:laza/Resources/Widgets/account_creating_bottons.dart';
 import 'package:laza/Veiw/auth_screens/login_screen.dart';
@@ -36,14 +37,21 @@ class _CreateaccountscreenState extends State<Createaccountscreen> {
                   padding: const EdgeInsets.only(left: 20, right: 20,),
                   child: Column(
                     children: [
-                     const TopHeader(lable: 'Let’s Get Started',),
+                     const    Text("Let’s Get Started",
+                    textAlign:  TextAlign.center,
+                    style: const TextStyle(
+                      fontWeight:FontWeight.w600 ,
+                      fontSize:28 ,
+                      fontFamily: 'Inter',
+                      color: MyColor.textBlack,
+                    ),),
                       SizedBox(height: 185 *h ),
-                      const AccountCreatingBottons(lable: 'Facebook', color: Color(0xff4267B2),
-                          icon: Images.facebook),
+                       AccountCreatingBottons(lable: 'Facebook', color: Color(0xff4267B2),
+                          icon: Images.facebook, ontap: () {  },),
                        SizedBox(height: 10 *h ,),
-                      const AccountCreatingBottons(lable: 'Twitter', color: Color(0xff1DA1F2), icon: Images.twitter),
+                       AccountCreatingBottons(lable: 'Twitter', color: Color(0xff1DA1F2), icon: Images.twitter, ontap: () {  },),
                        SizedBox(height: 10 *h ,),
-                      const AccountCreatingBottons(lable: 'Google', color: Color(0xffEA4335), icon: Images.google),
+                       AccountCreatingBottons(lable: 'Google', color: Color(0xffEA4335), icon: Images.google, ontap: () {  GoogleAuth.googleAuth();},),
                       SizedBox(height: 204 *h ,),
                       GestureDetector(
                         onTap: (){

@@ -1,10 +1,14 @@
+import 'package:laza/Firebase/DataBase/address.dart';
 import 'package:laza/Resources/MediaQuery/media_query.dart';
 import 'package:laza/Resources/Navigators/navigators.dart';
 import 'package:laza/Resources/Widgets/reuseable_appbar.dart';
 import 'package:laza/Resources/Widgets/reuseable_textfield.dart';
 import 'package:laza/Veiw/cart_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:switcher_button/switcher_button.dart';
 
+import '../../Providers/addressProvider.dart';
+import '../../Providers/bottom_buttom_provider.dart';
 import '../../Resources/Paths/imports.dart';
 
 class AddressScreen extends StatefulWidget {
@@ -25,6 +29,7 @@ class _AddressScreenState extends State<AddressScreen> {
     TextEditingController addressController = TextEditingController();
     final w = getScreenSize(context).width * (1 / 375);
     final h = getScreenSize(context).height * (1 / 812);
+    final addressProvider = Provider.of<Addressprovider>(context, listen: false);
 
     return  SafeArea(
       child: Scaffold(
@@ -89,9 +94,21 @@ class _AddressScreenState extends State<AddressScreen> {
                 ),
               ),
               SizedBox(height: 216*h,),
-              BottomButtons(lable: 'Save Address', ontap: (){
-                NavigatorPop(context);
-              })
+              Consumer<Addressprovider>(
+                builder: (BuildContext context, Addressprovider value, Widget? child) {
+                  return  BottomButtons(lable: 'Save Address', ontap: (){
+                    Provider.of<BottomButtomProvider>(context, listen: false).startloading();
+                    addressProvider.address(nameController.text.toString(),
+                        cityController.text.toString(),
+                        countryController.text.toString(),
+                        phoneNoController.text.toString(),
+                        addressController.text.toString(),
+                        context);
+
+                  });
+                },
+
+              )
             ],
           ),
         ),

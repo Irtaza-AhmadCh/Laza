@@ -35,7 +35,10 @@ class MyTextField extends StatelessWidget {
            return   TextFormField(
                   onChanged:(val){(fieldType?.toLowerCase()== 'password') ?value.passwordchecker(controller.text.toString())
                       : (fieldType?.toLowerCase()== 'email') ? value.emailChecker(controller.text.toString()):
-                  (fieldType?.toLowerCase()== 'name')?value.namechecker(controller.text.toString()) : null; },
+                  (fieldType?.toLowerCase()== 'name')?value.namechecker(controller.text.toString()):
+                  (fieldType?.toLowerCase()== 'emaillogin') ? value.emailloginChecker(controller.text.toString()):
+                  (fieldType?.toLowerCase()== 'passwordlogin')?value.passwordloginchecker(controller.text.toString()) : null; },
+
 
                   style: const TextStyle(
                       fontSize: 15,

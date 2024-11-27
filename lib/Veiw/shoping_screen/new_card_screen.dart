@@ -1,9 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:laza/Firebase/DataBase/add_card.dart';
 import 'package:laza/Models/card_type_model.dart';
 import 'package:laza/Providers/card-type-provider.dart';
 import 'package:laza/Resources/Widgets/reuseable_appbar.dart';
 import 'package:laza/Resources/Widgets/reuseable_textfield.dart';
 import 'package:provider/provider.dart';
 
+import '../../Providers/bottom_buttom_provider.dart';
 import '../../Resources/MediaQuery/media_query.dart';
 import '../../Resources/Paths/AssetsPath.dart';
 import '../../Resources/Paths/imports.dart';
@@ -16,6 +19,7 @@ class NewCardScreen extends StatefulWidget {
 }
 
 class _NewCardScreenState extends State<NewCardScreen> {
+  String cardType ='master';
   TextEditingController cardOwnerController = TextEditingController();
   TextEditingController cardNumberController = TextEditingController();
   TextEditingController cardExpController = TextEditingController();
@@ -50,6 +54,8 @@ class _NewCardScreenState extends State<NewCardScreen> {
                                     child: InkWell(
                                       onTap: (){
                                         value.selectedSize(index);
+                                        cardType =cardTypeList[index].cardType;
+                                        print(cardType);
 
                                       },
                                       child: Container(
@@ -63,7 +69,7 @@ class _NewCardScreenState extends State<NewCardScreen> {
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            SvgPicture.asset(cardTypeList[index].cardLogoPath,),
+                                          Image.asset(cardTypeList[index].cardLogoPath,),
                                           ],
                                         ),
                                       ),
@@ -100,7 +106,20 @@ class _NewCardScreenState extends State<NewCardScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomButtons(lable: 'Add Card', ontap: (){}),
+      bottomNavigationBar: BottomButtons(lable: 'Add Card', ontap: (){
+        Provider.of<BottomButtomProvider>(context, listen: false).startloading();
+        addCard(
+           ownername:  cardOwnerController.text.toString(),
+           cardNo:  cardNumberController.text.toString(),
+          exp:   cardExpController.text.toString(),
+           cvv:  cardCVVController.text.toString(),
+          type:   cardType.toString(),
+            context: context,
+
+
+        );
+
+      }),
     ));
   }
 }

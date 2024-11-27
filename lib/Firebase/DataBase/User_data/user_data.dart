@@ -15,15 +15,19 @@ UserData(name, email ,File? image){
       .currentUser!.uid.toString()}');
   firebase_storage.UploadTask uploadTask = storageRef.putFile(image!.absolute);
 
+
+
   Future.value(uploadTask).then((val)async{
     var imageUrl = await storageRef.getDownloadURL();
 
     firebaseRef.doc(_auth.currentUser!.uid.toString()).set({
       'Name' : name,
+      'Id':_auth.currentUser!.uid.toString(),
       'Email' : email,
-      'ProfileImage': imageUrl
+      'profileImage': imageUrl
     }).then((_){
       Toastmassage.SuccessToast('Data Added');
+
     }).onError((error, stackTrace){
       Toastmassage.ErrorToast(error);
     });
